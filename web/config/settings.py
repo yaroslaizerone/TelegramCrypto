@@ -30,7 +30,6 @@ INSTALLED_APPS = [
     'psycopg2',
     'core',
     'flower',
-    'django_select2',
 ]
 
 MIDDLEWARE = [

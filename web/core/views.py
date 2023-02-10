@@ -3,36 +3,24 @@ from django.views.generic import View, ListView, FormView, UpdateView
 from django.contrib import messages
 from django.urls import reverse
 from core.models import Person, PersonTable
-from core.services import TableService, PersonService
-from core.forms import PersonTableForm, PersonFilterForm
+from core.services import TableService
+from core.forms import PersonTableForm
 from core.constants import PREVIEW_ROWS_LIMIT, PersonTableStatus
 from core.tasks import save_table_task
 
 
 class PersonListView(ListView):
     model = Person
-    paginate_by = 10
-    form_class = PersonFilterForm
+    paginate_by = 30
 
     def get_queryset(self):
-        return PersonService.filtered_queryset(self.request)
+        qs = super().get_queryset()
+        return qs.prefetch_related('personusage_set').order_by('-pk')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        filtered_qs = PersonService.filtered_queryset(self.request)
-        context['total_count'] = filtered_qs.count()
-        context['form'] = self.form_class(self.request.GET)
-        context['has_data'] = PersonService.has_data_for_columns(filtered_qs)
+        context['total_count'] = self.get_queryset().count()
         return context
-
-    def get(self, request, *args, **kwargs):
-        qs = self.get_queryset()
-        if request.GET.get('export') == 'excel':
-            selected_columns = request.GET.getlist('columns')
-            response = PersonService.export_to_excel(qs, selected_columns)
-            return response
-
-        return super().get(request, *args, **kwargs)
 
 
 class TableUploadView(FormView):
