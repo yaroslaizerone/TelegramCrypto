@@ -1,3 +1,69 @@
 from django.db import models
+from django.contrib.auth.models import User
 
-# Create your models here.
+
+class PersonTag(models.Model):
+    name = models.CharField(verbose_name='Название тега', max_length=100)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Теги'
+        verbose_name_plural = 'Теги'
+
+
+class Region(models.Model):
+    name = models.CharField(verbose_name='Регион', max_length=100)
+
+    def __str__(self):
+        return self.name
+
+
+class Country(models.Model):
+    name = models.CharField(verbose_name='Страна', max_length=30)
+
+    def __str__(self):
+        return self.name
+
+
+class Person(models.Model):
+    last_name = models.CharField(verbose_name='Фамилия', max_length=50, blank=True)
+    first_name = models.CharField(verbose_name='Имя', max_length=50, blank=True)
+    middle_name = models.CharField(verbose_name='Отчество', max_length=50, blank=True)
+    email = models.EmailField(verbose_name='Электронная почта', blank=True)
+    phone = models.CharField(verbose_name='Номер телефона', max_length=20, blank=True)
+    birth_date = models.DateField(verbose_name='Дата рождения', blank=True, null=True)
+    address = models.CharField(verbose_name='Адрес', max_length=255, blank=True)
+    city = models.CharField(verbose_name='Город', max_length=50, blank=True)
+    region = models.ForeignKey(Region, verbose_name='Регион', on_delete=models.SET_NULL, blank=True, null=True)
+    country = models.ForeignKey(Country, verbose_name='Страна', on_delete=models.SET_NULL, blank=True, null=True)
+    tags = models.ManyToManyField(PersonTag, verbose_name='Теги', blank=True)
+    comment = models.CharField(verbose_name='Комментарий', max_length=255, blank=True)
+
+    class Meta:
+        verbose_name = 'Данные абонента'
+        verbose_name_plural = 'Данные абонента'
+
+    def __str__(self):
+        return f'{self.last_name} {self.first_name} {self.middle_name}'
+
+
+class PersonUsage(models.Model):
+    person = models.ForeignKey(Person, on_delete=models.CASCADE, blank=True, verbose_name='Абонент')
+    date_of_use = models.DateTimeField('Дата использования', auto_now_add=True)
+
+    def __str__(self):
+        if self.person:
+            return f'Использование данных абонента {self.person.last_name} {self.person.first_name} {self.date_of_use}'
+        else:
+            return f'Использование данных абонента (нет данных)'
+
+
+class DataMapping(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    column_name = models.CharField(max_length=255)
+    field_name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.column_name} -> {self.field_name}"

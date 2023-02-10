@@ -1,0 +1,26 @@
+th {
+  background-color: #EFEFEF;
+}
+
+tr:nth-child(odd) {
+  background-color: #F2F2F2;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 1rem;
+  background-color: #FFFFFF;
+  border: 1px solid #DDDDDD;
+}
+
+td, th {
+  padding: 12px 15px;
+  border: 1px solid #DDDDDD;
+}
+
+.badge {
+  background-color: #17A2B8;
+  color: #FFFFFF;
+}
