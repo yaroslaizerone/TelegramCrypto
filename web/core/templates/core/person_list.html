@@ -7,7 +7,7 @@
 
 {% block content %}
 <div class="mt-3">
-    <h1>Список абонентов</h1>
+    <h1>Список абонентов ({{ total_count }} записей)</h1>
     <div class="table-responsive">
         <table class="table table-striped">
             <thead>
@@ -21,7 +21,7 @@
                 <th>Адрес</th>
                 <th>Город</th>
                 <th>Регион</th>
-                <th>Страна</th>
+                <th>UTC</th>
                 <th>Дата использования</th>
                 <th>Теги</th>
             </tr>
@@ -38,7 +38,7 @@
                 <td>{{ person.address }}</td>
                 <td>{{ person.city }}</td>
                 <td>{{ person.region.name }}</td>
-                <td>{{ person.country.name }}</td>
+                <td>{{ person.region.utc }}</td>
                 <td>
                     {% for usage in person.personusage_set.all %}
                         {{ usage.date_of_use }}<br>

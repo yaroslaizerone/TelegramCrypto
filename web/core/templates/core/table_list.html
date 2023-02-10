@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="mt-3">
+    <h1>Список сохраненных таблиц ({{ total_count }} записей)</h1
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Файл таблицы</th>
+                <th>Кол-во строк</th>
+                <th>Статус</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for table in object_list %}
+            <tr>
+                <td>{{ table.id }}</td>
+                {% if table.status == 0 %}
+                <td><a href="{% url 'table_preview' pk=table.id %}">{{ table.file }}</a></td>
+                <td>{{ table.num_rows }}</td>
+                <td>{{ table.get_status_display }}</td>
+                {% elif table.status == 1 %}
+                <td><a href="{% url 'table_save' pk=table.id %}">{{ table.file }}</a></td>
+                <td>{{ table.num_rows }}</td>
+                <td>{{ table.get_status_display }}</td>
+                {% else %}
+                <td>{{ table.file }}</td>
+                <td>{{ table.num_rows }}</td>
+                <td>{{ table.get_status_display }}</td>
+                {% endif %}
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3">Нет сохраненных таблиц</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
