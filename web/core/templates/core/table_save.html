@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="mt-3">
+    <h1>Сохраненная таблица</h1>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Столбцы</th>
+                <th>Статус</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr class="{% if loaded_table.status == 0 %}table-active{% endif %}">
+                <td>{{ loaded_table.id }}</td>
+                <td>{{ loaded_table.columns }}</td>
+                <td>{{ status }}</td>
+
+            </tr>
+            </tbody>
+        </table>
+        {% if loaded_table.status == 1 %}
+        <form method="post">
+            {% csrf_token %}
+            <button id="save-btn" type="submit" class="btn btn-success">Сохранить</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

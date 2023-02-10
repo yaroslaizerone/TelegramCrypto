@@ -1,6 +1,5 @@
 from django.contrib import admin
-
-from .models import Person, PersonUsage, PersonTag, Region, Country
+from core.models import Person, PersonUsage, PersonTag, Region, Country
 
 admin.site.register(Person)
 admin.site.register(PersonUsage)
