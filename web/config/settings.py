@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'psycopg2',
     'core',
     'flower',
+    'django_select2',
 ]
 
 MIDDLEWARE = [
@@ -83,6 +84,8 @@ DATABASES = {
         'PORT': DB_PORT,
     }
 }
+
+LEAD_VERTEX_API_KEY = os.getenv('LEAD_VERTEX_API_KEY')
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
