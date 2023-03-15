@@ -1,60 +1,150 @@
 {% extends 'base.html' %}
+{% load custom_tags %}
+{% load static %}
+
 
 {% block title %}
-Список абонентов
+    Список абонентов
 {% endblock %}
 
-
 {% block content %}
-<div class="mt-3">
-    <h1>Список абонентов ({{ total_count }} записей)</h1>
-    <div class="table-responsive">
-        <table class="table table-striped">
-            <thead>
-            <tr>
-                <th>Фамилия</th>
-                <th>Имя</th>
-                <th>Отчество</th>
-                <th>Электронная почта</th>
-                <th>Номер телефона</th>
-                <th>Дата рождения</th>
-                <th>Адрес</th>
-                <th>Город</th>
-                <th>Регион</th>
-                <th>UTC</th>
-                <th>Дата использования</th>
-                <th>Теги</th>
-            </tr>
+    <script src="{% static 'js/person_list.js' %}"></script>
+    <div class="mt-3">
+        <h1>Список абонентов ({{ total_count }} записей)</h1>
+        <div class="table-responsive">
+            <form method="get">
+                <table class="table">
+                    <tr>
+                        <td>{{ form.region }}</td>
+                        <td>{{ form.utc }}</td>
+                        <td>{{ form.max_rows }}</td>
+                        <td>
+                            <button type="submit" class="btn btn-primary">Фильтровать</button>
+                            <a href="{% export_excel_url %}" class="btn btn-success btn-export-excel">Экспорт в
+                                Excel</a>
+                        </td>
+                    </tr>
+                </table>
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>
+                            <label>
+                                <input class="column-checkbox" type="checkbox" name="columns"
+                                       value="last_name" {% checked_column 'last_name' has_data %}>
+                                Фамилия
+                            </label>
+                        </th>
+                        <th>
+                            <label>
+                                <input class="column-checkbox" type="checkbox" name="columns" value="first_name"
+                                        {% checked_column 'first_name' has_data %}>
+                                Имя
+                            </label>
+                        </th>
+                        <th>
+                            <label>
+                                <input class="column-checkbox" type="checkbox" name="columns" value="middle_name"
+                                        {% checked_column 'middle_name' has_data %}>
+                                Отчество
+                            </label>
+                        </th>
+                        <th>
+                            <label>
+                                <input class="column-checkbox" type="checkbox" name="columns" value="email"
+                                        {% checked_column 'email' has_data %}>
+                                Электронная почта
+                            </label>
+                        </th>
+                        <th>
+                            <label>
+                                <input class="column-checkbox" type="checkbox" name="columns" value="phone"
+                                        {% checked_column 'phone' has_data %}>
+                                Номер телефона
+                            </label>
+                        </th>
+                        <th>
+                            <label>
+                                <input class="column-checkbox" type="checkbox" name="columns" value="birth_date"
+                                        {% checked_column 'birth_date' has_data %}>
+                                Дата рождения
+                            </label>
+                        </th>
+                        <th>
+                            <label>
+                                <input class="column-checkbox" type="checkbox" name="columns" value="address"
+                                        {% checked_column 'address' has_data %}>
+                                Адрес
+                            </label>
+                        </th>
+                        <th>
+                            <label>
+                                <input class="column-checkbox" type="checkbox" name="columns" value="city"
+                                        {% checked_column 'city' has_data %}>
+                                Город
+                            </label>
+                        </th>
+                        <th>
+                            <label>
+                                <input class="column-checkbox" type="checkbox" name="columns" value="region__name"
+                                        {% checked_column 'region__name' has_data %}>
+                                Регион
+                            </label>
+                        </th>
+                        <th>
+                            <label>
+                                <input class="column-checkbox" type="checkbox" name="columns" value="region__utc"
+                                        {% checked_column 'region__utc' has_data %}>
+                                UTC
+                            </label>
+                        </th>
+                        <th>Дата использования</th>
+                        <th>Теги</th>
+                    </tr>
+
+
+            </form>
             </thead>
             <tbody>
             {% for person in person_list %}
-            <tr>
-                <td>{{ person.last_name }}</td>
-                <td>{{ person.first_name }}</td>
-                <td>{{ person.middle_name }}</td>
-                <td>{{ person.email }}</td>
-                <td>{{ person.phone }}</td>
-                <td>{{ person.birth_date }}</td>
-                <td>{{ person.address }}</td>
-                <td>{{ person.city }}</td>
-                <td>{{ person.region.name }}</td>
-                <td>{{ person.region.utc }}</td>
-                <td>
-                    {% for usage in person.personusage_set.all %}
-                        {{ usage.date_of_use }}<br>
-                    {% empty %}
-                        Нет данных
-                    {% endfor %}
-                </td>
-                <td>
-                    {% for tag in person.tags.all %}
-                    <span class="badge">{{ tag.name }}</span>
-                    {% endfor %}
-                </td>
-            </tr>
+                <tr>
+                    <td>{{ person.id }}</td>
+                    <td>{{ person.last_name }}</td>
+                    <td>{{ person.first_name }}</td>
+                    <td>{{ person.middle_name }}</td>
+                    <td>{{ person.email }}</td>
+                    <td>{{ person.phone }}</td>
+                    <td>{{ person.birth_date }}</td>
+                    <td>{{ person.address }}</td>
+                    <td>{{ person.city }}</td>
+                    <td>{{ person.region.name }}</td>
+                    <td>{{ person.region.utc }}</td>
+                    <td>
+                        <div class="usage-wrapper">
+                            {% with person.personusage_set.all as usage_list %}
+                                {% for usage in usage_list %}
+                                    {% if forloop.first %}
+                                        {{ usage.date_of_use }}<br>
+                                    {% else %}
+                                        <span class="more" style="display: none;">{{ usage.date_of_use }}<br></span>
+                                    {% endif %}
+                                {% endfor %}
+                                {% if not usage_list %}
+                                    Нет данных
+                                {% endif %}
+                            {% endwith %}
+                        </div>
+                    </td>
+                    <td>
+                        {% for tag in person.tags.all %}
+                            <span class="badge">{{ tag.name }}</span>
+                        {% endfor %}
+                    </td>
+                </tr>
             {% endfor %}
             </tbody>
-        </table>
+            </table>
+        </div>
     </div>
-</div>
 {% endblock %}

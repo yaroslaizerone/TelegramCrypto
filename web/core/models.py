@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
-import pandas as pd
 from core.constants import PersonTableStatus
 
 
