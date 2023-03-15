@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'psycopg2',
     'core',
     'flower',
+    'django_select2',
 ]
 
 MIDDLEWARE = [
@@ -84,6 +85,8 @@ DATABASES = {
     }
 }
 
+LEAD_VERTEX_API_KEY = os.getenv('LEAD_VERTEX_API_KEY')
+
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
 
@@ -129,3 +132,6 @@ STATICFILES_DIRS = [
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = 'login'

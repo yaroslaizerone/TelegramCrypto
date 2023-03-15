@@ -1,29 +1,80 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.views.generic import View, ListView, FormView, UpdateView
+from django.shortcuts import get_object_or_404, redirect
+from django.views.generic import View, ListView, FormView, UpdateView, TemplateView
 from django.contrib import messages
-from django.urls import reverse
-from core.models import Person, PersonTable
-from core.services import TableService
-from core.forms import PersonTableForm
+from core.models import Person, PersonTable, TaskStatus
+from core.services import TableService, PersonService
+from core.forms import PersonTableForm, PersonFilterForm
 from core.constants import PREVIEW_ROWS_LIMIT, PersonTableStatus
-from core.tasks import save_table_task
+from core.tasks import save_table_task, update_person_status_and_usage_by_phone_number
+from mycelery import app
+from django.http import HttpResponseRedirect
+from django.shortcuts import render, redirect
+from django.urls import reverse
+from django.contrib.auth.views import LoginView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
-class PersonListView(ListView):
-    model = Person
-    paginate_by = 30
+class CustomLoginView(LoginView):
+    template_name = 'login.html'
+    redirect_authenticated_user = True
+    success_url = '/'
 
-    def get_queryset(self):
-        qs = super().get_queryset()
-        return qs.prefetch_related('personusage_set').order_by('-pk')
+
+class StartTaskView(LoginRequiredMixin, TemplateView):
+    template_name = 'start_task.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['total_count'] = self.get_queryset().count()
+        context['active_tasks'] = TaskStatus.objects.filter(is_active=True)
         return context
 
+    def post(self, request, *args, **kwargs):
+        action = request.POST.get('action')
 
-class TableUploadView(FormView):
+        if action == 'start':
+            num_of_processes = int(request.POST.get('num_of_processes', 1))
+
+            for _ in range(num_of_processes):
+                task = update_person_status_and_usage_by_phone_number.delay()
+                TaskStatus.objects.create(task_id=task.id)
+            messages.success(self.request, 'Задачи успешно запущены.')
+
+        elif action == 'stop':
+            for task_status in TaskStatus.objects.filter(is_active=True):
+                app.control.revoke(task_status.task_id, terminate=True)
+                task_status.is_active = False
+                task_status.save()
+            messages.success(self.request, 'Задачи успешно остановлены.')
+
+        return HttpResponseRedirect(reverse('start_task'))
+
+class PersonListView(LoginRequiredMixin, ListView):
+    model = Person
+    paginate_by = 15
+    form_class = PersonFilterForm
+
+    def get_queryset(self):
+        return PersonService.filtered_queryset(self.request)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        filtered_qs = PersonService.filtered_queryset(self.request)
+        context['total_count'] = filtered_qs.count()
+        context['form'] = self.form_class(self.request.GET)
+        context['has_data'] = PersonService.has_data_for_columns(filtered_qs)
+        return context
+
+    def get(self, request, *args, **kwargs):
+        qs = self.get_queryset()
+        if request.GET.get('export') == 'excel':
+            selected_columns = request.GET.getlist('columns')
+            response = PersonService.export_to_excel(qs, selected_columns)
+            return response
+
+        return super().get(request, *args, **kwargs)
+
+
+class TableUploadView(LoginRequiredMixin, FormView):
     template_name = 'table_upload.html'
     form_class = PersonTableForm
 
@@ -37,7 +88,7 @@ class TableUploadView(FormView):
         return reverse('table_preview', args=[self.loaded_table.pk])
 
 
-class TableUpdateView(UpdateView):
+class TableUpdateView(LoginRequiredMixin, UpdateView):
     model = PersonTable
     template_name = 'table_preview.html'
     fields = ['columns', 'status']
@@ -67,7 +118,7 @@ class TableUpdateView(UpdateView):
         return reverse('table_save', args=[self.object.pk])
 
 
-class TableSaveView(View):
+class TableSaveView(LoginRequiredMixin, View):
     template_name = 'table_save.html'
 
     def get(self, request, pk):
@@ -82,7 +133,7 @@ class TableSaveView(View):
         return redirect('table_upload')
 
 
-class TableListView(ListView):
+class TableListView(LoginRequiredMixin, ListView):
     template_name = 'table_list.html'
     model = PersonTable
 
