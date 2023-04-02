@@ -1,5 +1,22 @@
 amqp==5.1.1
 asgiref==3.6.0
+<<<<<<< HEAD
+beautifulsoup4==4.11.2
+certifi==2022.12.7
+charset-normalizer==3.1.0
+Django==4.1.6
+django-bootstrap4==22.3
+django-crispy-forms==2.0
+et-xmlfile==1.1.0
+idna==3.4
+numpy==1.24.2
+openpyxl==3.1.1
+pandas==1.5.3
+psycopg2==2.9.5
+python-dateutil==2.8.2
+python-dotenv==0.21.1
+pytz==2022.7.1
+=======
 async-timeout==4.0.2
 asyncio==3.4.3
 beautifulsoup4==4.11.2
@@ -40,14 +57,19 @@ pytz-deprecation-shim==0.1.0.post0
 pyxlsb==1.0.10
 redis==4.5.1
 regex==2022.10.31
+>>>>>>> 7413387 (feat: реализовать загрузку данных из файла)
 requests==2.28.2
 six==1.16.0
 soupsieve==2.4
 sqlparse==0.4.3
 tabulate==0.9.0
+<<<<<<< HEAD
+urllib3==1.26.14
+=======
 tornado==6.2
 tzdata==2022.7
 tzlocal==4.2
 urllib3==1.26.14
 vine==5.0.0
 wcwidth==0.2.6
+>>>>>>> 7413387 (feat: реализовать загрузку данных из файла)

@@ -8,4 +8,8 @@ management/
 *.pyc
 db.sqlite3
 .env
+<<<<<<< HEAD
+/web/web.config.settings
+=======
 /web/web.config.settings.db
+>>>>>>> 7413387 (feat: реализовать загрузку данных из файла)
