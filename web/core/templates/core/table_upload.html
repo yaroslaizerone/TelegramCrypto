@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="mt-3">
+    <h1>Загрузить таблицу</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <table class="table">
+            <tr>
+                <td>{{ form.file }}</td>
+            </tr>
+            <tr>
+                <td>
+                    <button type="submit" class="btn btn-primary">Загрузить</button>
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+{% endblock %}
