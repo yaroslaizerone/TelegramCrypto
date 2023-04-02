@@ -1,7 +1,8 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
-from core.constants import PersonTableStatus
-
+from core.constants import PersonTableStatus, GENDER_CHOICES
+import requests
+from django.conf import settings
 
 class PersonTag(models.Model):
     name = models.CharField(verbose_name='Название тега', max_length=100)
@@ -39,6 +40,20 @@ class PersonTable(models.Model):
         verbose_name = 'Загруженная таблица'
         verbose_name_plural = 'Загруженные таблицы'
 
+class PersonStatusLV(models.Model):
+    status_id = models.PositiveIntegerField(verbose_name='ID статуса')
+    name = models.CharField(verbose_name='Название статуса', max_length=100)
+
+    def fetch_statuses(cls):
+        url = f'https://statk.leadvertex.ru/api/admin/getStatusList.html?token={settings.LEAD_VERTEX_API_KEY}'
+        response = requests.get(url)
+        status_data = response.json()
+
+        for status_id, status_info in status_data.items():
+            cls.objects.update_or_create(
+                status_id=status_id,
+                defaults={'name': status_info['name']}
+            )
 
 class Person(models.Model):
     last_name = models.CharField(verbose_name='Фамилия', max_length=30, blank=True)
@@ -54,6 +69,8 @@ class Person(models.Model):
     tags = models.ManyToManyField(PersonTag, verbose_name='Теги', blank=True)
     comment = models.CharField(verbose_name='Комментарий', max_length=255, blank=True)
     person_table = models.ForeignKey(PersonTable, verbose_name='Загруженная таблица', on_delete=models.SET_NULL, blank=True, null=True)
+    status = models.ForeignKey(PersonStatusLV, verbose_name='Статус', on_delete=models.SET_NULL, blank=True, null=True)
+    gender = models.CharField(verbose_name='Пол', max_length=1, choices=GENDER_CHOICES, blank=True)
 
     def save(self, *args, **kwargs):
         self.last_name = self.last_name[:30]
@@ -79,10 +96,14 @@ class Person(models.Model):
 
 class PersonUsage(models.Model):
     person = models.ForeignKey(Person, on_delete=models.CASCADE, blank=True, verbose_name='Абонент')
-    date_of_use = models.DateTimeField('Дата использования', auto_now_add=True)
+    date_of_use = models.DateTimeField('Дата использования')
 
     def __str__(self):
         if self.person:
             return f'Использование данных абонента {self.person.last_name} {self.person.first_name} {self.date_of_use}'
         else:
             return f'Использование данных абонента (нет данных)'
+
+class TaskStatus(models.Model):
+    task_id = models.CharField(max_length=255, unique=True)
+    is_active = models.BooleanField(default=True)

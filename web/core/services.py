@@ -1,12 +1,89 @@
 import time
+import requests
+import json
 import pandas as pd
 from core.utils import validate_data, parse_person_data
-from core.models import Person, PersonTable, PersonUsage
+from core.models import Person, PersonTable, PersonUsage, PersonStatusLV
 from core.constants import PersonTableStatus
 from django.http import HttpResponse
 from core.column_config import ColumnConfig
-from datetime import datetime
 from django.db.models import Prefetch, Max
+from django.conf import settings
+from django.utils import timezone
+from datetime import datetime
+from django.db import transaction
+
+
+class LeadVertexService:
+    API_KEY = settings.LEAD_VERTEX_API_KEY
+    ORDER_IDS_URL = 'https://statk.leadvertex.ru/api/admin/getOrdersIdsByCondition.html?token={}&phone={}'
+    ORDER_DETAILS_URL = 'https://statk.leadvertex.ru/api/admin/getOrdersByIds.html?token={}&ids={}'
+
+    @staticmethod
+    def get_orders(phone_number):
+        """Получает список заказов по номеру телефона."""
+        url = LeadVertexService.ORDER_IDS_URL.format(LeadVertexService.API_KEY, phone_number)
+        response = requests.get(url)
+        order_ids = response.json()
+        return order_ids
+
+    @staticmethod
+    def get_details(order_ids):
+        """Получает детали заказа по первому (последнему) ID."""
+        first_order_id = order_ids[0]
+        url = LeadVertexService.ORDER_DETAILS_URL.format(LeadVertexService.API_KEY, first_order_id)
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            order_data = json.loads(response.text)
+            return order_data
+        else:
+            return None
+
+    @staticmethod
+    def get_orders_and_details(phone_number):
+        """Получает заказы и детали заказа по номеру телефона."""
+        order_ids = LeadVertexService.get_orders(phone_number)
+        order_data = LeadVertexService.get_details(order_ids)
+
+        if not order_data:
+            return None
+
+        most_recent_order = max(order_data.items(), key=lambda x: x[1]['lastUpdate'])
+        status_id = most_recent_order[1]['status']
+        last_update = most_recent_order[1]['lastUpdate']
+
+        try:
+            person_status = PersonStatusLV.objects.get(status_id=status_id)
+        except PersonStatusLV.DoesNotExist:
+            return None
+
+        return (person_status, last_update)
+
+    @staticmethod
+    def update_person_and_usage():
+        """Обновляет статус и дату использования для одной записи."""
+        while True:
+            with transaction.atomic():
+                person = Person.objects.filter(status_id=None).select_for_update(skip_locked=True).first()
+
+                if not person:
+                    continue
+
+                order_data = LeadVertexService.get_orders_and_details(person.phone)
+
+                if not order_data:
+                    continue
+
+                person_status, last_update = order_data
+                person.status = person_status
+                person.save()
+
+                last_update_datetime = datetime.strptime(last_update, "%Y-%m-%d %H:%M:%S")
+                last_update_aware = timezone.make_aware(last_update_datetime)
+
+                PersonUsage.objects.create(person=person, date_of_use=last_update_aware)
+                print(f"{person}, {last_update_aware} updated")
 
 
 class PersonService:

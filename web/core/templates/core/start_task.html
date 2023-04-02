@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Запуск задач{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1 class="my-4">Запуск задач</h1>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="num_of_processes" class="form-label">Количество процессов:</label>
+                <input type="number" class="form-control" id="num_of_processes" name="num_of_processes" min="1" value="1">
+            </div>
+            <button type="submit" name="action" value="start" class="btn btn-primary">Запустить</button>
+            <button type="submit" name="action" value="stop" class="btn btn-danger">Остановить</button>
+        </form>
+        <hr>
+        <h2 class="my-4">Активные задачи</h2>
+        <ul class="list-group">
+            {% for task_status in active_tasks %}
+                <li class="list-group-item">{{ task_status.task_id }}</li>
+            {% endfor %}
+        </ul>
+        <p class="my-4">Всего активных задач: {{ active_tasks.count }}</p>
+    </div>
+{% endblock %}

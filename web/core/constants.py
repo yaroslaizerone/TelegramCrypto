@@ -11,6 +11,12 @@ class PersonTableStatus:
         (STATUS_COMPLETED, 'Выполнено'),
     ]
 
+GENDER_CHOICES = (
+    ('M', 'Мужской'),
+    ('F', 'Женский'),
+    ('U', 'Неопределен')
+)
+
 # Количество строк в Preview
 
 PREVIEW_ROWS_LIMIT = 13
