@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+<script>
+        $(document).ready(function () {
+            $('td[class^="field-value-"]').each(function () {
+                const value = $(this).text().trim();
+                if (/^7\d{10}$/.test(value)) {
+                    const index = $(this).attr('class').match(/field-value-(\d+)/)[1];
+                    $(`.field-selector-${index} option[value="phone"]`).prop('selected', true);
+                }
+                if (/^[А-Яа-яЁё]+\s[А-Яа-яЁё]+\s[А-Яа-яЁё]+$/.test(value)) {
+                    const index = $(this).attr('class').match(/field-value-(\d+)/)[1];
+                    $(`.field-selector-${index} option[value="fio"]`).prop('selected', true);
+                }
+            });
+        });
+    </script>
+<div class="mt-3">
+    <h1>Редактирование таблицы</h1>
+    <form method="post" enctype="multipart/form-data">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <tr>
+                    {% for i in columns %}
+                    <th>
+                        <select name="mapping" class="form-select field-selector-{{ forloop.counter }}">
+                            <option value="empty">- выберите поле -</option>
+                            <option value="fio">ФИО</option>
+                            <option value="last_name">Фамилия</option>
+                            <option value="first_name">Имя</option>
+                            <option value="middle_name">Отчество</option>
+                            <option value="email">Электронная почта</option>
+                            <option value="phone">Номер телефона</option>
+                            <option value="birth_date">Дата рождения</option>
+                            <option value="address">Адрес</option>
+                            <option value="city">Город</option>
+                            <option value="region">Регион</option>
+                            <option value="country">Страна</option>
+                            <option value="tags">Теги</option>
+                            <option value="comment">Комментарий</option>
+                        </select>
+                    </th>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    {% for column in columns %}
+                    <td class="field-value-{{ forloop.counter }}">{{ column }}</td>
+                    {% endfor %}
+                </tr>
+                {% for row in rows %}
+                <tr>
+                    {% for cell in row %}
+                    <td>{{ cell }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        {{ form.as_p }}
+
+        {% csrf_token %}
+
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+    </form>
+</div>
+{% endblock %}
