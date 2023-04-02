@@ -1,18 +1,26 @@
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import View, ListView, FormView, UpdateView, TemplateView
 from django.contrib import messages
-from django.urls import reverse
 from core.models import Person, PersonTable, TaskStatus
 from core.services import TableService, PersonService
 from core.forms import PersonTableForm, PersonFilterForm
 from core.constants import PREVIEW_ROWS_LIMIT, PersonTableStatus
 from core.tasks import save_table_task, update_person_status_and_usage_by_phone_number
-from django.shortcuts import render
 from mycelery import app
 from django.http import HttpResponseRedirect
+from django.shortcuts import render, redirect
+from django.urls import reverse
+from django.contrib.auth.views import LoginView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
-class StartTaskView(TemplateView):
+class CustomLoginView(LoginView):
+    template_name = 'login.html'
+    redirect_authenticated_user = True
+    success_url = '/'
+
+
+class StartTaskView(LoginRequiredMixin, TemplateView):
     template_name = 'start_task.html'
 
     def get_context_data(self, **kwargs):
@@ -40,9 +48,9 @@ class StartTaskView(TemplateView):
 
         return HttpResponseRedirect(reverse('start_task'))
 
-class PersonListView(ListView):
+class PersonListView(LoginRequiredMixin, ListView):
     model = Person
-    paginate_by = 10
+    paginate_by = 15
     form_class = PersonFilterForm
 
     def get_queryset(self):
@@ -66,7 +74,7 @@ class PersonListView(ListView):
         return super().get(request, *args, **kwargs)
 
 
-class TableUploadView(FormView):
+class TableUploadView(LoginRequiredMixin, FormView):
     template_name = 'table_upload.html'
     form_class = PersonTableForm
 
@@ -80,7 +88,7 @@ class TableUploadView(FormView):
         return reverse('table_preview', args=[self.loaded_table.pk])
 
 
-class TableUpdateView(UpdateView):
+class TableUpdateView(LoginRequiredMixin, UpdateView):
     model = PersonTable
     template_name = 'table_preview.html'
     fields = ['columns', 'status']
@@ -110,7 +118,7 @@ class TableUpdateView(UpdateView):
         return reverse('table_save', args=[self.object.pk])
 
 
-class TableSaveView(View):
+class TableSaveView(LoginRequiredMixin, View):
     template_name = 'table_save.html'
 
     def get(self, request, pk):
@@ -125,7 +133,7 @@ class TableSaveView(View):
         return redirect('table_upload')
 
 
-class TableListView(ListView):
+class TableListView(LoginRequiredMixin, ListView):
     template_name = 'table_list.html'
     model = PersonTable
 

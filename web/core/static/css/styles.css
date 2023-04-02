@@ -16,7 +16,11 @@ table {
 }
 
 td, th {
+<<<<<<< web/core/static/css/styles.css
+    padding: 5px 5px !important;
+=======
     padding: 12px 15px;
+>>>>>>> web/core/static/css/styles.css
     border: 1px solid #DDDDDD;
 }
 
@@ -35,4 +39,12 @@ td, th {
 
 .select2-search__field {
     height: 22px !important;
+<<<<<<< web/core/static/css/styles.css
 }
+
+table.main {
+    font-size: 0.9rem;
+}
+=======
+}
+>>>>>>> web/core/static/css/styles.css
