@@ -1,6 +1,24 @@
 import os, csv, re, chardet, dateparser
 from core.models import Person, Region
 
+def update_person(person, person_data):
+    for key, new_value in person_data.items():
+        old_value = getattr(person, key, None)
+
+        if key in ['last_name', 'first_name', 'middle_name']:
+            if old_value is None or (new_value and len(str(new_value)) > len(str(old_value))):
+                setattr(person, key, new_value)
+                print(f"Обновлено поле {key}: {old_value} -> {new_value}")
+
+            elif new_value and new_value != old_value:
+                alternative_fio = f"{person_data.get('last_name', '')} {person_data.get('first_name', '')} {person_data.get('middle_name', '')}".strip()
+                alternative_name = f"Альтернативное ФИО: {alternative_fio}"
+                person.comment = alternative_name
+                print(f"Добавлен альтернативный вариант ФИО в комментарий: {alternative_name}")
+
+        elif old_value is None or (new_value and len(str(new_value)) > len(str(old_value))):
+            setattr(person, key, new_value)
+            print(f"Обновлено поле {key}: {old_value} -> {new_value}")
 
 def validate_data(data):
     # чистим заголовки
@@ -11,6 +29,8 @@ def validate_data(data):
     # чистим ячейки
     data = data.applymap(lambda x: x.strip() if isinstance(x, str) else x)
     data = data.applymap(lambda x: " ".join(x.split()) if isinstance(x, str) else x)
+    # Замена значений '0.0' и '0' на пустую строку
+    data = data.applymap(lambda x: '' if x == '0.0' or x == '0' else x)
     # удаляю пустые строки и столбцы
     data.dropna(how="all", axis=1, inplace=True)
     data.dropna(how="all", inplace=True)

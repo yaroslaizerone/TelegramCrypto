@@ -2,7 +2,7 @@ import time
 import requests
 import json
 import pandas as pd
-from core.utils import validate_data, parse_person_data
+from core.utils import validate_data, parse_person_data, update_person
 from core.models import Person, PersonTable, PersonUsage, PersonStatusLV
 from core.constants import PersonTableStatus
 from django.http import HttpResponse
@@ -30,7 +30,12 @@ class LeadVertexService:
     @staticmethod
     def get_details(order_ids):
         """Получает детали заказа по первому (последнему) ID."""
-        first_order_id = order_ids[0]
+        try:
+            first_order_id = order_ids[0]
+        except IndexError:
+            print("Ошибка: список order_ids пуст")
+            return None
+
         url = LeadVertexService.ORDER_DETAILS_URL.format(LeadVertexService.API_KEY, first_order_id)
         response = requests.get(url)
 
@@ -47,7 +52,12 @@ class LeadVertexService:
         order_data = LeadVertexService.get_details(order_ids)
 
         if not order_data:
-            return None
+            person_status, _ = PersonStatusLV.objects.get_or_create(
+                status_id=111,
+                defaults={'name': 'Не использовано'}
+            )
+            last_update = datetime(2000, 1, 1)
+            return (person_status, last_update)
 
         most_recent_order = max(order_data.items(), key=lambda x: x[1]['lastUpdate'])
         status_id = most_recent_order[1]['status']
@@ -72,18 +82,22 @@ class LeadVertexService:
 
                 order_data = LeadVertexService.get_orders_and_details(person.phone)
 
-                if not order_data:
-                    continue
-
                 person_status, last_update = order_data
+                if person_status is None:
+                    person_status = PersonStatusLV(status_id=111, name='Не использовано')
+
                 person.status = person_status
                 person.save()
 
-                last_update_datetime = datetime.strptime(last_update, "%Y-%m-%d %H:%M:%S")
-                last_update_aware = timezone.make_aware(last_update_datetime)
+                if last_update is not None:
+                    if isinstance(last_update, str):
+                        last_update_datetime = datetime.strptime(last_update, "%Y-%m-%d %H:%M:%S")
+                        last_update_aware = timezone.make_aware(last_update_datetime)
+                    else:
+                        last_update_aware = timezone.make_aware(last_update)
 
-                PersonUsage.objects.create(person=person, date_of_use=last_update_aware)
-                print(f"{person}, {last_update_aware} updated")
+                    PersonUsage.objects.create(person=person, date_of_use=last_update_aware)
+                    print(f"{person}, {last_update_aware} updated")
 
 
 class PersonService:
@@ -157,7 +171,8 @@ class TableService:
     @staticmethod
     def read_table(filename):
         start_time = time.time()
-        data = validate_data(pd.read_excel(filename, header=None))
+        data = pd.read_excel(filename, header=None, dtype=str)
+        data = validate_data(data)
         print(f"load {time.time() - start_time}")
         return data
 
@@ -168,7 +183,7 @@ class TableService:
 
         loaded_table.status = PersonTableStatus.STATUS_PROCESSED
         loaded_table.save()
-
+        global COUNTER
         excel_data = TableService.read_table(loaded_table.file)
         keys = [pair.split(":")[0] for pair in loaded_table.columns]
         column_pairs = loaded_table.columns
@@ -176,25 +191,38 @@ class TableService:
         for pair in column_pairs:
             attribute_name, value = pair.split(":", maxsplit=1)
             person_data = parse_person_data(person_data, attribute_name, value)
-        person = Person(**person_data)
-        person.save()  # записываю заголовок
-        global COUNTER
+
+        person, created = Person.objects.get_or_create(phone=person_data['phone'])
+        if created:
+            for key, value in person_data.items():
+                setattr(person, key, value)
+            print(f"Создан объект: {person}")
+        else:
+            print(f"Обновлен объект: {person}")
+            update_person(person, person_data)
+
+        person.save()
         COUNTER += 1
-        print(f"Счетчик: {COUNTER} {person}")
+        print(f"Счетчик: {COUNTER}")
 
         for _, row in excel_data.iterrows():
             person_data = {}
             for i, value in enumerate(row):
                 attribute_name = keys[i]
                 person_data = parse_person_data(person_data, attribute_name, value)
-            person = Person(**person_data)
-            if person.phone:
+
+            if person_data['phone']:
+                person, created = Person.objects.get_or_create(phone=person_data['phone'])
+                if created:
+                    for key, value in person_data.items():
+                        setattr(person, key, value)
+                    print(f"Создан объект: {person}")
+                else:
+                    print(f"Обновлен объект: {person}")
+                    update_person(person, person_data)
+
                 person.save()
                 COUNTER += 1
-                print(f"Счетчик: {COUNTER} {person}")
+                print(f"Счетчик: {COUNTER}")
             else:
-                print(f"Не удалось сохранить строку {row}, номер телефона некорректный")
-        loaded_table.status = PersonTableStatus.STATUS_COMPLETED
-        loaded_table.save()
-
-        return True
+                print(f"Не удалось сохранить строку {person}, номер телефона некорректный")

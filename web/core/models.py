@@ -48,7 +48,10 @@ class PersonStatusLV(models.Model):
         url = f'https://statk.leadvertex.ru/api/admin/getStatusList.html?token={settings.LEAD_VERTEX_API_KEY}'
         response = requests.get(url)
         status_data = response.json()
-
+        cls.objects.update_or_create(
+            status_id=111,
+            defaults={'name': 'Не использовано'}
+        )
         for status_id, status_info in status_data.items():
             cls.objects.update_or_create(
                 status_id=status_id,
@@ -60,7 +63,7 @@ class Person(models.Model):
     first_name = models.CharField(verbose_name='Имя', max_length=30, blank=True)
     middle_name = models.CharField(verbose_name='Отчество', max_length=30, blank=True)
     email = models.EmailField(verbose_name='Электронная почта', blank=True)
-    phone = models.CharField(verbose_name='Номер телефона', max_length=11, blank=True)
+    phone = models.CharField(verbose_name='Номер телефона', max_length=11, blank=True, unique=True)
     birth_date = models.DateField(verbose_name='Дата рождения', blank=True, null=True)
     address = models.CharField(verbose_name='Адрес', max_length=255, blank=True)
     city = models.CharField(verbose_name='Город', max_length=30, blank=True)
