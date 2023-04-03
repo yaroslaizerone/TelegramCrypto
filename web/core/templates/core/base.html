@@ -1,9 +1,5 @@
 {% load static %}
 {% load custom_tags %}
-<<<<<<< web/core/templates/core/base.html
-
-=======
->>>>>>> web/core/templates/core/base.html
 <!DOCTYPE html>
 <html>
 <head>
@@ -25,11 +21,8 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-<<<<<<< web/core/templates/core/base.html
             <ul class="navbar-nav mr-auto">
-=======
             <ul class="navbar-nav">
->>>>>>> web/core/templates/core/base.html
                 <li class="nav-item {% url_active 'person_list' %}">
                     <a class="nav-link" href="{% url 'person_list' %}">Главная</a>
                 </li>
@@ -43,7 +36,6 @@
                     <a class="nav-link" href="{% url 'start_task' %}">Таски</a>
                 </li>
             </ul>
-<<<<<<< web/core/templates/core/base.html
             {% if user.is_authenticated %}
             <ul class="navbar-nav">
                 <li class="nav-item">
@@ -54,8 +46,6 @@
                 </li>
             </ul>
             {% endif %}
-=======
->>>>>>> web/core/templates/core/base.html
         </div>
     </nav>
     {% if messages %}
