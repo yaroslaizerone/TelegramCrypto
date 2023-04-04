@@ -136,7 +136,7 @@ class PersonService:
         for index, row in df.iterrows():
             person_id = row['id']
             person = Person.objects.get(pk=person_id)
-            PersonUsage.objects.create(person=person)
+            PersonUsage.objects.create(person=person, date_of_use=datetime.now())
 
         response = HttpResponse(content_type='application/ms-excel')
         row_count = len(df)

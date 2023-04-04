@@ -50,7 +50,7 @@ class StartTaskView(LoginRequiredMixin, TemplateView):
 
 class PersonListView(LoginRequiredMixin, ListView):
     model = Person
-    paginate_by = 15
+    paginate_by = 50
     form_class = PersonFilterForm
 
     def get_queryset(self):
