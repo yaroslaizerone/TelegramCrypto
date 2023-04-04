@@ -3,6 +3,8 @@ from django.contrib.postgres.fields import ArrayField
 from core.constants import PersonTableStatus, GENDER_CHOICES
 import requests
 from django.conf import settings
+from core.models.person_usage import PersonUsage
+
 
 class PersonTag(models.Model):
     name = models.CharField(verbose_name='Название тега', max_length=100)
@@ -33,12 +35,15 @@ class Country(models.Model):
 class PersonTable(models.Model):
     file = models.FileField(upload_to='person-table/%Y/%m/', verbose_name='Файл таблицы')
     columns = ArrayField(models.CharField(max_length=1000), verbose_name='Столбцы таблицы')
-    status = models.SmallIntegerField(choices=PersonTableStatus.STATUS_CHOICES, default=PersonTableStatus.STATUS_NEW, verbose_name='Статус')
+    status = models.SmallIntegerField(choices=PersonTableStatus.STATUS_CHOICES, default=PersonTableStatus.STATUS_NEW,
+                                      verbose_name='Статус')
     num_rows = models.PositiveIntegerField(null=True, blank=True, verbose_name='Количество строк')
+    tags = models.ManyToManyField(PersonTag, blank=True, verbose_name='Теги')
 
     class Meta:
         verbose_name = 'Загруженная таблица'
         verbose_name_plural = 'Загруженные таблицы'
+
 
 class PersonStatusLV(models.Model):
     status_id = models.PositiveIntegerField(verbose_name='ID статуса')
@@ -58,6 +63,7 @@ class PersonStatusLV(models.Model):
                 defaults={'name': status_info['name']}
             )
 
+
 class Person(models.Model):
     last_name = models.CharField(verbose_name='Фамилия', max_length=30, blank=True)
     first_name = models.CharField(verbose_name='Имя', max_length=30, blank=True)
@@ -71,9 +77,12 @@ class Person(models.Model):
     country = models.ForeignKey(Country, verbose_name='Страна', on_delete=models.SET_NULL, blank=True, null=True)
     tags = models.ManyToManyField(PersonTag, verbose_name='Теги', blank=True)
     comment = models.CharField(verbose_name='Комментарий', max_length=255, blank=True)
-    person_table = models.ForeignKey(PersonTable, verbose_name='Загруженная таблица', on_delete=models.SET_NULL, blank=True, null=True)
+    person_table = models.ForeignKey(PersonTable, verbose_name='Загруженная таблица', on_delete=models.SET_NULL,
+                                     blank=True, null=True)
     status = models.ForeignKey(PersonStatusLV, verbose_name='Статус', on_delete=models.SET_NULL, blank=True, null=True)
     gender = models.CharField(verbose_name='Пол', max_length=1, choices=GENDER_CHOICES, blank=True)
+    person_usage = models.ForeignKey(PersonUsage, on_delete=models.SET_NULL, blank=True, null=True,
+                                     related_name='related_person')
 
     def save(self, *args, **kwargs):
         self.last_name = self.last_name[:30]
@@ -96,16 +105,6 @@ class Person(models.Model):
     def __str__(self):
         return f'{self.last_name} {self.first_name} {self.middle_name}'
 
-
-class PersonUsage(models.Model):
-    person = models.ForeignKey(Person, on_delete=models.CASCADE, blank=True, verbose_name='Абонент')
-    date_of_use = models.DateTimeField('Дата использования')
-
-    def __str__(self):
-        if self.person:
-            return f'Использование данных абонента {self.person.last_name} {self.person.first_name} {self.date_of_use}'
-        else:
-            return f'Использование данных абонента (нет данных)'
 
 class TaskStatus(models.Model):
     task_id = models.CharField(max_length=255, unique=True)

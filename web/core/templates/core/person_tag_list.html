@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block title %}Список тегов{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1 class="my-4">Список тегов</h1>
+        <a href="{% url 'person_tags_add' %}" class="btn btn-primary mb-3">Добавить тег</a>
+        <ul class="list-group">
+            {% for tag in object_list %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ tag.name }}
+                    <a href="{% url 'person_tags_delete' tag.pk %}" class="btn btn-danger">Удалить</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

@@ -1,13 +1,22 @@
 from django import forms
-from core.models import PersonTable, Region
-from django_select2.forms import Select2Widget
+from core.models import PersonTable, Region, PersonTag
+from core.constants import GENDER_CHOICES
 
+
+class PersonTagForm(forms.ModelForm):
+    class Meta:
+        model = PersonTag
+        fields = ['name']
+        labels = {
+            'name': 'Название тега',
+        }
 
 
 class PersonTableForm(forms.ModelForm):
     class Meta:
         model = PersonTable
         fields = ['file']
+
 
 class PersonFilterForm(forms.Form):
     region = forms.ModelMultipleChoiceField(
@@ -30,4 +39,15 @@ class PersonFilterForm(forms.Form):
         label='Максимальное количество строк',
         widget=forms.NumberInput(attrs={'id': 'id_max_rows', 'placeholder': 'Кол-во строк'})
     )
-
+    gender = forms.MultipleChoiceField(
+        choices=GENDER_CHOICES,
+        required=False,
+        label='Пол',
+        widget=forms.SelectMultiple(attrs={'id': 'id_gender', 'data-placeholder': 'Выберите пол'}),
+    )
+    tag = forms.ModelMultipleChoiceField(
+        queryset=PersonTag.objects.all(),
+        required=False,
+        label='Тег',
+        widget=forms.SelectMultiple(attrs={'id': 'id_tag', 'data-placeholder': 'Выберите тег'}),
+    )
