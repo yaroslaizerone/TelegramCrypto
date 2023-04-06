@@ -38,6 +38,7 @@ class PersonTable(models.Model):
     status = models.SmallIntegerField(choices=PersonTableStatus.STATUS_CHOICES, default=PersonTableStatus.STATUS_NEW,
                                       verbose_name='Статус')
     num_rows = models.PositiveIntegerField(null=True, blank=True, verbose_name='Количество строк')
+    tags = models.ManyToManyField(PersonTag, blank=True, verbose_name='Теги')
 
     class Meta:
         verbose_name = 'Загруженная таблица'
@@ -80,7 +81,8 @@ class Person(models.Model):
                                      blank=True, null=True)
     status = models.ForeignKey(PersonStatusLV, verbose_name='Статус', on_delete=models.SET_NULL, blank=True, null=True)
     gender = models.CharField(verbose_name='Пол', max_length=1, choices=GENDER_CHOICES, blank=True)
-    person_usage = models.ForeignKey(PersonUsage, on_delete=models.SET_NULL, blank=True, null=True, related_name='related_person')
+    person_usage = models.ForeignKey(PersonUsage, on_delete=models.SET_NULL, blank=True, null=True,
+                                     related_name='related_person')
 
     def save(self, *args, **kwargs):
         self.last_name = self.last_name[:30]

@@ -1,7 +1,7 @@
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404
 from django.views.generic import View, ListView, FormView, UpdateView, TemplateView
 from django.contrib import messages
-from core.models import Person, PersonTable, TaskStatus
+from core.models import Person, PersonTable, TaskStatus, PersonTag
 from core.services import TableService, PersonService
 from core.forms import PersonTableForm, PersonFilterForm
 from core.constants import PREVIEW_ROWS_LIMIT, PersonTableStatus
@@ -47,6 +47,7 @@ class StartTaskView(LoginRequiredMixin, TemplateView):
             messages.success(self.request, 'Задачи успешно остановлены.')
 
         return HttpResponseRedirect(reverse('start_task'))
+
 
 class PersonListView(LoginRequiredMixin, ListView):
     model = Person
@@ -101,6 +102,7 @@ class TableUpdateView(LoginRequiredMixin, UpdateView):
             excel_data = excel_data[:rows_limit]
         context['columns'] = self.object.columns
         context['rows'] = excel_data.values.tolist()
+        context['tags'] = PersonTag.objects.all()
         return context
 
     def form_valid(self, form):
@@ -110,6 +112,9 @@ class TableUpdateView(LoginRequiredMixin, UpdateView):
             self.object.columns = [f"{mappings}:{columns}" for mappings, columns in zip(mappings, columns)]
             self.object.status = PersonTableStatus.STATUS_MATCHING
             self.object.save()
+            selected_tags = self.request.POST.getlist('tags')
+            tags = PersonTag.objects.filter(id__in=selected_tags)
+            self.object.tags.set(tags)
         else:
             messages.error(self.request, 'Уже апдейтнуто.')
         return super().form_valid(form)

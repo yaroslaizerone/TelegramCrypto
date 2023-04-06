@@ -20,6 +20,14 @@
     <h1>Редактирование таблицы</h1>
     <form method="post" enctype="multipart/form-data">
         <div class="table-responsive">
+        <div class="mb-3">
+    <label for="tags" class="form-label">Выберите теги:</label>
+    <select name="tags" id="tags" class="form-select" multiple>
+        {% for tag in tags %}
+            <option value="{{ tag.id }}">{{ tag.name }}</option>
+        {% endfor %}
+    </select>
+</div>
             <table class="table table-striped">
                 <tr>
                     {% for i in columns %}

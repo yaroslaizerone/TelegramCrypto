@@ -18,91 +18,99 @@
                         <td>{{ form.region }}</td>
                         <td>{{ form.utc }}</td>
                         <td>{{ form.max_rows }}</td>
+                        <td>{{ form.gender }}</td>
+                        <td>{{ form.tag }}</td>
                         <td>
                             <button type="submit" class="btn btn-primary">Фильтровать</button>
-                            <a href="{% export_excel_url %}" class="btn btn-success btn-export-excel">Экспорт в
-                                Excel</a>
+                          <a href="{% export_excel_url %}" class="btn btn-success btn-export-excel {% if total_count > 100000 %}no-export{% endif %}">Экспорт в Excel</a>
                         </td>
                     </tr>
                 </table>
                 <table class="table table-striped main">
-                <table class="table table-striped">
-                    <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>
-                            <label>
-                                <input class="column-checkbox" type="checkbox" name="columns"
-                                       value="last_name" {% checked_column 'last_name' has_data %}>
-                                Фамилия
-                            </label>
-                        </th>
-                        <th>
-                            <label>
-                                <input class="column-checkbox" type="checkbox" name="columns" value="first_name"
-                                        {% checked_column 'first_name' has_data %}>
-                                Имя
-                            </label>
-                        </th>
-                        <th>
-                            <label>
-                                <input class="column-checkbox" type="checkbox" name="columns" value="middle_name"
-                                        {% checked_column 'middle_name' has_data %}>
-                                Отчество
-                            </label>
-                        </th>
-                        <th>
-                            <label>
-                                <input class="column-checkbox" type="checkbox" name="columns" value="email"
-                                        {% checked_column 'email' has_data %}>
-                                Электронная почта
-                            </label>
-                        </th>
-                        <th>
-                            <label>
-                                <input class="column-checkbox" type="checkbox" name="columns" value="phone"
-                                        {% checked_column 'phone' has_data %}>
-                                Номер телефона
-                            </label>
-                        </th>
-                        <th>
-                            <label>
-                                <input class="column-checkbox" type="checkbox" name="columns" value="birth_date"
-                                        {% checked_column 'birth_date' has_data %}>
-                                Дата рождения
-                            </label>
-                        </th>
-                        <th>
-                            <label>
-                                <input class="column-checkbox" type="checkbox" name="columns" value="address"
-                                        {% checked_column 'address' has_data %}>
-                                Адрес
-                            </label>
-                        </th>
-                        <th>
-                            <label>
-                                <input class="column-checkbox" type="checkbox" name="columns" value="city"
-                                        {% checked_column 'city' has_data %}>
-                                Город
-                            </label>
-                        </th>
-                        <th>
-                            <label>
-                                <input class="column-checkbox" type="checkbox" name="columns" value="region__name"
-                                        {% checked_column 'region__name' has_data %}>
-                                Регион
-                            </label>
-                        </th>
-                        <th>
-                            <label>
-                                <input class="column-checkbox" type="checkbox" name="columns" value="region__utc"
-                                        {% checked_column 'region__utc' has_data %}>
-                                UTC
-                            </label>
-                        </th>
-                        <th>Дата использования</th>
-                        <th>Теги</th>
-                    </tr>
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>
+                                <label>
+                                    <input class="column-checkbox" type="checkbox" name="columns"
+                                           value="last_name" {% checked_column 'last_name' has_data %}>
+                                    Фамилия
+                                </label>
+                            </th>
+                            <th>
+                                <label>
+                                    <input class="column-checkbox" type="checkbox" name="columns" value="first_name"
+                                            {% checked_column 'first_name' has_data %}>
+                                    Имя
+                                </label>
+                            </th>
+                            <th>
+                                <label>
+                                    <input class="column-checkbox" type="checkbox" name="columns" value="middle_name"
+                                            {% checked_column 'middle_name' has_data %}>
+                                    Отчество
+                                </label>
+                            </th>
+                            <th>
+                                <label>
+                                    <input class="column-checkbox" type="checkbox" name="columns" value="email"
+                                            {% checked_column 'email' has_data %}>
+                                    Электронная почта
+                                </label>
+                            </th>
+                            <th>
+                                <label>
+                                    <input class="column-checkbox" type="checkbox" name="columns" value="phone"
+                                            {% checked_column 'phone' has_data %}>
+                                    Номер телефона
+                                </label>
+                            </th>
+                            <th>
+                                <label>
+                                    <input class="column-checkbox" type="checkbox" name="columns" value="birth_date"
+                                            {% checked_column 'birth_date' has_data %}>
+                                    Дата рождения
+                                </label>
+                            </th>
+                            <th>
+                                <label>
+                                    <input class="column-checkbox" type="checkbox" name="columns" value="address"
+                                            {% checked_column 'address' has_data %}>
+                                    Адрес
+                                </label>
+                            </th>
+                            <th>
+                                <label>
+                                    <input class="column-checkbox" type="checkbox" name="columns" value="city"
+                                            {% checked_column 'city' has_data %}>
+                                    Город
+                                </label>
+                            </th>
+                            <th>
+                                <label>
+                                    <input class="column-checkbox" type="checkbox" name="columns" value="region__name"
+                                            {% checked_column 'region__name' has_data %}>
+                                    Регион
+                                </label>
+                            </th>
+                            <th>
+                                <label>
+                                    <input class="column-checkbox" type="checkbox" name="columns" value="region__utc"
+                                            {% checked_column 'region__utc' has_data %}>
+                                    UTC
+                                </label>
+                            </th>
+                            <th>
+                                <label>
+                                    <input class="column-checkbox" type="checkbox" name="columns" value="gender"
+                                            {% checked_column 'gender' has_data %}>
+                                    Пол
+                                </label>
+                            </th>
+                            <th>Дата использования</th>
+                            <th>Теги</th>
+                        </tr>
 
 
             </form>
@@ -121,6 +129,7 @@
                     <td>{{ person.city }}</td>
                     <td>{{ person.region.name }}</td>
                     <td>{{ person.region.utc }}</td>
+                    <td>{{ person.gender }}</td>
                     <td>
                         <div class="usage-wrapper">
                             {% with person.personusage_set.all as usage_list %}
