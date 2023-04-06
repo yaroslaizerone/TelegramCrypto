@@ -29,6 +29,14 @@ def export_excel_url(context):
             params.append(f'utc={utc}')
     if request.GET.get('max_rows'):
         params.append(f'max_rows={request.GET.get("max_rows")}')
+    if request.GET.get('gender'):
+        params.append(f'gender={request.GET.get("gender")}')
+    if request.GET.get('tag'):
+        params.append(f'tag={request.GET.get("tag")}')
+    if request.GET.get('status'):
+        params.append(f'status={request.GET.get("status")}')
+    if request.GET.get('merge_fio'):
+        params.append(f'merge_fio={request.GET.get("merge_fio")}')
     for column in request.GET.getlist('columns'):
         params.append(f'columns={column}')
 

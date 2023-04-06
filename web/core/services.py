@@ -10,8 +10,12 @@ from core.column_config import ColumnConfig
 from django.db.models import Prefetch, Max
 from django.conf import settings
 from django.utils import timezone
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.db import transaction
+from django.utils.timezone import now
+from django.db.models import Value
+from django.db.models.functions import Concat
+from django.db.models.functions import Coalesce
 
 
 class LeadVertexService:
@@ -78,7 +82,7 @@ class LeadVertexService:
                 person = Person.objects.filter(status_id=None).select_for_update(skip_locked=True).first()
 
                 if not person:
-                    continue
+                    break
 
                 order_data = LeadVertexService.get_orders_and_details(person.phone)
 
@@ -102,20 +106,35 @@ class LeadVertexService:
 
 class PersonService:
 
-    @staticmethod
     def filtered_queryset(request):
         """ Фильтрует и сортирует объекты Person на основе параметров запроса. """
         qs = Person.objects.all()
         regions = request.GET.getlist('region')
         utcs = request.GET.getlist('utc')
         max_rows = request.GET.get('max_rows')
+        gender = request.GET.getlist('gender')
+        tag = request.GET.getlist('tag')
+        status = request.GET.getlist('status')
+
+        if gender:
+            qs = qs.filter(gender__in=gender)
+
+        if tag:
+            qs = qs.filter(tags__pk__in=tag)
+
         if regions:
             qs = qs.filter(region__in=regions)
+
         if utcs:
             qs = qs.filter(region__utc__in=utcs)
 
-        qs = qs.annotate(last_usage_date=Max('personusage__date_of_use')) \
-            .order_by('last_usage_date', '-pk')
+        if status:
+            qs = qs.filter(status__in=status)
+
+        min_date = datetime.min + timedelta(days=1)  # Значение по умолчанию для пустых значений даты использования
+        qs = qs.annotate(
+            last_usage_date=Coalesce(Max('personusage__date_of_use'), min_date)
+        ).order_by('last_usage_date', 'random_uuid')
 
         qs = qs.prefetch_related(
             Prefetch('personusage_set', queryset=PersonUsage.objects.order_by('-date_of_use')))
@@ -126,21 +145,40 @@ class PersonService:
         return qs
 
     @staticmethod
-    def export_to_excel(queryset, selected_columns):
+    def export_to_excel(queryset, selected_columns, merge_fio=False):
         """ Экспортирует объекты Person в файл Excel. """
+
+        if merge_fio:
+            selected_columns.remove('last_name')
+            selected_columns.remove('first_name')
+            selected_columns.remove('middle_name')
+            selected_columns.append('fio')
+
         column_list = ['id'] + selected_columns
+
+        if merge_fio:
+            queryset = queryset.annotate(fio=Concat('last_name', Value(' '), 'first_name', Value(' '), 'middle_name'))
+
         df = pd.DataFrame(queryset.values(*column_list))
-        columns = ['id'] + [ColumnConfig.get_header_name(column) for column in selected_columns]
+
+        fio_mapping = ('fio', 'ФИО')
+        columns = ['id'] + [ColumnConfig.get_header_name(column) if column != 'fio' else fio_mapping[1] for column in
+                            selected_columns]
         df.columns = columns
+
+        if merge_fio:
+            # Поместить колонку ФИО на первое место
+            fio_column = df.pop('ФИО')
+            df.insert(1, 'ФИО', fio_column)
 
         for index, row in df.iterrows():
             person_id = row['id']
             person = Person.objects.get(pk=person_id)
-            PersonUsage.objects.create(person=person, date_of_use=datetime.now())
+            PersonUsage.objects.create(person=person, date_of_use=now())
 
         response = HttpResponse(content_type='application/ms-excel')
         row_count = len(df)
-        current_date = datetime.now().strftime('%Y-%m-%d_%H-%M')
+        current_date = now().strftime('%Y-%m-%d_%H-%M')
         filename = f"person_list_{row_count}_rows_{current_date}.xlsx"
 
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
@@ -202,6 +240,7 @@ class TableService:
             update_person(person, person_data)
 
         person.save()
+        person.tags.set(loaded_table.tags.all())
         COUNTER += 1
         print(f"Счетчик: {COUNTER}")
 
@@ -222,6 +261,7 @@ class TableService:
                     update_person(person, person_data)
 
                 person.save()
+                person.tags.set(loaded_table.tags.all())
                 COUNTER += 1
                 print(f"Счетчик: {COUNTER}")
             else:
