@@ -20,9 +20,19 @@
                         <td>{{ form.max_rows }}</td>
                         <td>{{ form.gender }}</td>
                         <td>{{ form.tag }}</td>
+                        <td>{{ form.status }}</td>
                         <td>
                             <button type="submit" class="btn btn-primary">Фильтровать</button>
-                          <a href="{% export_excel_url %}" class="btn btn-success btn-export-excel {% if total_count > 100000 %}no-export{% endif %}">Экспорт в Excel</a>
+                            <a href="{% export_excel_url %}"
+                               class="btn btn-success btn-export-excel {% if total_count > 100000 %}no-export{% endif %}">Экспорт
+                                в Excel</a>
+                        </td>
+                        <td>
+                            <div class="form-check" data-bs-toggle="tooltip" data-bs-placement="top"
+                                 title="Объединить ФИО">
+                                <input class="form-check-input" type="checkbox" name="merge_fio" id="merge_fio" checked
+                                       value="1">
+                            </div>
                         </td>
                     </tr>
                 </table>
@@ -108,6 +118,13 @@
                                     Пол
                                 </label>
                             </th>
+                            <th>
+                                <label>
+                                    <input class="column-checkbox" type="checkbox" name="columns" value="status__name"
+                                            {% checked_column 'status__name' has_data %}>
+                                    Статус
+                                </label>
+                            </th>
                             <th>Дата использования</th>
                             <th>Теги</th>
                         </tr>
@@ -130,6 +147,8 @@
                     <td>{{ person.region.name }}</td>
                     <td>{{ person.region.utc }}</td>
                     <td>{{ person.gender }}</td>
+                    <td>{{ person.status.name }}</td>
+
                     <td>
                         <div class="usage-wrapper">
                             {% with person.personusage_set.all as usage_list %}

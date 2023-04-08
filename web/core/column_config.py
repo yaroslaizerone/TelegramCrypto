@@ -12,6 +12,7 @@ class ColumnConfig:
         'region__name': ('region__name', 'Регион'),
         'region__utc': ('region__utc', 'UTC'),
         'gender': ('gender', 'Пол'),
+        'status__name': ('status__name', 'Статус'),
     }
 
     @classmethod
