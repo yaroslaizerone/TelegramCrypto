@@ -69,7 +69,8 @@ class PersonListView(LoginRequiredMixin, ListView):
         qs = self.get_queryset()
         if request.GET.get('export') == 'excel':
             selected_columns = request.GET.getlist('columns')
-            response = PersonService.export_to_excel(qs, selected_columns)
+            merge_fio = self.request.GET.get('merge_fio', '') == '1'
+            response = PersonService.export_to_excel(qs, selected_columns, merge_fio)
             return response
 
         return super().get(request, *args, **kwargs)

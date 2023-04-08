@@ -4,6 +4,7 @@ from core.constants import PersonTableStatus, GENDER_CHOICES
 import requests
 from django.conf import settings
 from core.models.person_usage import PersonUsage
+import uuid
 
 
 class PersonTag(models.Model):
@@ -49,6 +50,9 @@ class PersonStatusLV(models.Model):
     status_id = models.PositiveIntegerField(verbose_name='ID статуса')
     name = models.CharField(verbose_name='Название статуса', max_length=100)
 
+    def __str__(self):
+        return self.name
+
     def fetch_statuses(cls):
         url = f'https://statk.leadvertex.ru/api/admin/getStatusList.html?token={settings.LEAD_VERTEX_API_KEY}'
         response = requests.get(url)
@@ -64,6 +68,10 @@ class PersonStatusLV(models.Model):
             )
 
 
+def generate_random_number():
+    return random.randint(10 ** 10, 10 ** 11 - 1)
+
+
 class Person(models.Model):
     last_name = models.CharField(verbose_name='Фамилия', max_length=30, blank=True)
     first_name = models.CharField(verbose_name='Имя', max_length=30, blank=True)
@@ -72,6 +80,7 @@ class Person(models.Model):
     phone = models.CharField(verbose_name='Номер телефона', max_length=11, blank=True, unique=True)
     birth_date = models.DateField(verbose_name='Дата рождения', blank=True, null=True)
     address = models.CharField(verbose_name='Адрес', max_length=255, blank=True)
+    product_info = models.CharField(verbose_name='Информация о товаре', max_length=255, blank=True)
     city = models.CharField(verbose_name='Город', max_length=30, blank=True)
     region = models.ForeignKey(Region, verbose_name='Регион', on_delete=models.SET_NULL, blank=True, null=True)
     country = models.ForeignKey(Country, verbose_name='Страна', on_delete=models.SET_NULL, blank=True, null=True)
@@ -83,6 +92,7 @@ class Person(models.Model):
     gender = models.CharField(verbose_name='Пол', max_length=1, choices=GENDER_CHOICES, blank=True)
     person_usage = models.ForeignKey(PersonUsage, on_delete=models.SET_NULL, blank=True, null=True,
                                      related_name='related_person')
+    random_uuid = models.UUIDField(verbose_name='Случайный UUID', default=uuid.uuid4, editable=False)
 
     def save(self, *args, **kwargs):
         self.last_name = self.last_name[:30]

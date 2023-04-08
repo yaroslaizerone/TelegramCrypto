@@ -1,5 +1,5 @@
 from django import forms
-from core.models import PersonTable, Region, PersonTag
+from core.models import PersonTable, Region, PersonTag, PersonStatusLV
 from core.constants import GENDER_CHOICES
 
 
@@ -23,7 +23,7 @@ class PersonFilterForm(forms.Form):
         queryset=Region.objects.all(),
         label='Регион',
         required=False,
-        widget=forms.SelectMultiple(attrs={'id': 'id_region', 'data-placeholder': 'Выберите регион'}),
+        widget=forms.SelectMultiple(attrs={'id': 'id_region', 'data-placeholder': 'Регион'}),
     )
     utc_choices = [('', 'Выберите часовой пояс')] + sorted(
         [(utc, 'UTC+' + utc) for utc in Region.objects.values_list('utc', flat=True).distinct()])
@@ -31,7 +31,7 @@ class PersonFilterForm(forms.Form):
         choices=utc_choices,
         label='Часовой пояс UTC',
         required=False,
-        widget=forms.SelectMultiple(attrs={'id': 'id_utc', 'data-placeholder': 'Выберите UTC'}),
+        widget=forms.SelectMultiple(attrs={'id': 'id_utc', 'data-placeholder': 'UTC'}),
     )
     max_rows = forms.IntegerField(
         required=False,
@@ -43,11 +43,17 @@ class PersonFilterForm(forms.Form):
         choices=GENDER_CHOICES,
         required=False,
         label='Пол',
-        widget=forms.SelectMultiple(attrs={'id': 'id_gender', 'data-placeholder': 'Выберите пол'}),
+        widget=forms.SelectMultiple(attrs={'id': 'id_gender', 'data-placeholder': 'Пол'}),
     )
     tag = forms.ModelMultipleChoiceField(
         queryset=PersonTag.objects.all(),
         required=False,
         label='Тег',
-        widget=forms.SelectMultiple(attrs={'id': 'id_tag', 'data-placeholder': 'Выберите тег'}),
+        widget=forms.SelectMultiple(attrs={'id': 'id_tag', 'data-placeholder': 'Тег'}),
+    )
+    status = forms.ModelMultipleChoiceField(
+        queryset=PersonStatusLV.objects.all(),
+        label='Статус',
+        required=False,
+        widget=forms.SelectMultiple(attrs={'id': 'id_status', 'data-placeholder': 'Статус'}),
     )
