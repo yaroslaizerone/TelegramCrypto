@@ -3,6 +3,7 @@ import os
 from celery import Celery
 from django.conf import settings
 
+
 # Установка переменной окружения для настройки Celery
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 
@@ -13,7 +14,7 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 
 # Настройки Celery
 app.conf.update(
-    broker_url='amqp://guest:guest@localhost:5672//',
+    broker_url='redis://localhost:6379/0',
     result_backend='redis://localhost:6379/0',
     task_result_expires=3600,
     accept_content=['application/json'],

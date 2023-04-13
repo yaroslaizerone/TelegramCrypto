@@ -6,6 +6,49 @@
     <meta charset="UTF-8">
     <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+<style>th {
+    background-color: #EFEFEF;
+}
+
+tr:nth-child(odd) {
+    background-color: #F2F2F2;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 1rem;
+    background-color: #FFFFFF;
+    border: 1px solid #DDDDDD;
+}
+
+td, th {
+    padding: 5px 5px !important;
+    padding: 12px 15px;
+    border: 1px solid #DDDDDD;
+}
+
+.badge {
+    background-color: #17A2B8;
+    color: #FFFFFF;
+}
+
+.more {
+    display: none;
+}
+
+.usage-wrapper {
+    cursor: pointer;
+}
+
+.select2-search__field {
+    height: 22px !important;
+}
+
+table.main {
+    font-size: 0.9rem;
+}</style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.6.0/css/bootstrap.min.css"/>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
