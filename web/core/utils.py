@@ -43,9 +43,12 @@ def validate_data(data):
 def parse_person_data(person_data, attribute_name, value):
     if attribute_name == 'birth_date':
         dt = dateparser.parse(str(value))
-        date_str = dt.strftime('%Y-%m-%d')
-        date = dateparser.parse(date_str).date()
-        person_data['birth_date'] = date.isoformat()
+        if dt is not None:
+            date_str = dt.strftime('%Y-%m-%d')
+            date = dateparser.parse(date_str).date()
+            person_data['birth_date'] = date.isoformat()
+        else:
+            person_data['birth_date'] = None
     elif attribute_name == 'fio':
         try:
             names = value.split(' ')

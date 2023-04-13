@@ -209,10 +209,16 @@ class TableService:
     @staticmethod
     def read_table(filename):
         start_time = time.time()
-        data = pd.read_excel(filename, header=None, dtype=str)
-        data = validate_data(data)
-        print(f"load {time.time() - start_time}")
-        return data
+        xls = pd.ExcelFile(filename)
+
+        for sheet_name in xls.sheet_names:
+            data = pd.read_excel(xls, sheet_name=sheet_name, header=None, dtype=str)
+            if not data.empty:
+                data = validate_data(data)
+                print(f"load {time.time() - start_time}")
+                return data
+
+        raise ValueError("No non-empty sheets found in the file")
 
     @staticmethod
     def save_table(loaded_table):
