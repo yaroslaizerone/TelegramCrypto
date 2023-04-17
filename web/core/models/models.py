@@ -68,10 +68,6 @@ class PersonStatusLV(models.Model):
             )
 
 
-def generate_random_number():
-    return random.randint(10 ** 10, 10 ** 11 - 1)
-
-
 class Person(models.Model):
     last_name = models.CharField(verbose_name='Фамилия', max_length=30, blank=True)
     first_name = models.CharField(verbose_name='Имя', max_length=30, blank=True)
@@ -92,7 +88,7 @@ class Person(models.Model):
     gender = models.CharField(verbose_name='Пол', max_length=1, choices=GENDER_CHOICES, blank=True)
     person_usage = models.ForeignKey(PersonUsage, on_delete=models.SET_NULL, blank=True, null=True,
                                      related_name='related_person')
-    random_uuid = models.UUIDField(verbose_name='Случайный UUID', default=uuid.uuid4, editable=False)
+    random_uuid = models.UUIDField(verbose_name='Случайный UUID', default=uuid.uuid4, editable=False, db_index=True)
 
     def save(self, *args, **kwargs):
         self.last_name = self.last_name[:30]

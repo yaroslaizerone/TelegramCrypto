@@ -1,6 +1,8 @@
 from django.shortcuts import get_object_or_404
 from django.views.generic import View, ListView, FormView, UpdateView, TemplateView
 from django.contrib import messages
+
+from core.decorators import timing_decorator
 from core.models import Person, PersonTable, TaskStatus, PersonTag
 from core.services import TableService, PersonService
 from core.forms import PersonTableForm, PersonFilterForm
@@ -48,7 +50,6 @@ class StartTaskView(LoginRequiredMixin, TemplateView):
 
         return HttpResponseRedirect(reverse('start_task'))
 
-
 class PersonListView(LoginRequiredMixin, ListView):
     model = Person
     paginate_by = 50
@@ -74,7 +75,9 @@ class PersonListView(LoginRequiredMixin, ListView):
             return response
 
         return super().get(request, *args, **kwargs)
-
+    @timing_decorator
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
 class TableUploadView(LoginRequiredMixin, FormView):
     template_name = 'table_upload.html'
