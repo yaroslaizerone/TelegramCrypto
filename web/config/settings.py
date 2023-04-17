@@ -16,8 +16,8 @@ SECRET_KEY = 'django-insecure-4su%77jnqxhnjn-$lui(wbb5=&jne^0%7b=!tfs*i92lq78d6=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['www.pdata.onmarket54.ru', 'pdata.onmarket54.ru', '127.0.0.1', '91.228.153.126']
-
+# ALLOWED_HOSTS = ['www.pdata.onmarket54.ru', 'pdata.onmarket54.ru', '127.0.0.1', '91.228.153.126']
+ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
