@@ -37,7 +37,7 @@ MarkupPy==1.14
 MarkupSafe==2.1.2
 numpy==1.24.2
 odfpy==1.4.1
-openpyxl==3.1.1
+openpyxl==3.1.0
 pandas==1.5.3
 prometheus-client==0.16.0
 prompt-toolkit==3.0.38
@@ -52,6 +52,7 @@ PyYAML==6.0
 redis==4.5.1
 regex==2022.10.31
 requests==2.28.2
+sentry-sdk==1.19.1
 six==1.16.0
 soupsieve==2.4
 sqlparse==0.4.3
