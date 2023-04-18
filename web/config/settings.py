@@ -1,8 +1,26 @@
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
 load_dotenv()
+
+sentry_sdk.init(
+    dsn="https://fc1c15605a8f4ce4af45507685d0410d@o4505035629395968.ingest.sentry.io/4505035634376704",
+    integrations=[
+        DjangoIntegration(),
+    ],
+
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    # We recommend adjusting this value in production.
+    traces_sample_rate=1.0,
+
+    # If you wish to associate users to errors (assuming you are using
+    # django.contrib.auth) you may enable sending PII data.
+    send_default_pii=True
+)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -16,7 +34,6 @@ SECRET_KEY = 'django-insecure-4su%77jnqxhnjn-$lui(wbb5=&jne^0%7b=!tfs*i92lq78d6=
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# ALLOWED_HOSTS = ['www.pdata.onmarket54.ru', 'pdata.onmarket54.ru', '127.0.0.1', '91.228.153.126']
 ALLOWED_HOSTS = []
 # Application definition
 

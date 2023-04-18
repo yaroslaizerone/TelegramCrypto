@@ -5,6 +5,9 @@ from core.views import PersonListView, TableUploadView, TableUpdateView, TableSa
     CustomLoginView
 from django.contrib.auth.views import LogoutView
 
+def trigger_error(request):
+    division_by_zero = 1 / 0
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', PersonListView.as_view(), name='person_list'),
@@ -18,4 +21,6 @@ urlpatterns = [
     path('person_tags/', PersonTagListView.as_view(), name='person_tags'),
     path('person_tags/add/', AddPersonTagView.as_view(), name='person_tags_add'),
     path('person_tags/<int:pk>/delete/', DeletePersonTagView.as_view(), name='person_tags_delete'),
+    path('sentry-debug/', trigger_error),
+
 ]
