@@ -1,0 +1,11 @@
+[Unit]
+Description=celeryserver
+
+[Service]
+Type=exec
+WorkingDirectory=/home/vagrant/calldb/web
+ExecStart=/home/vagrant/.venv/bin/celery -A web worker -l info
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
