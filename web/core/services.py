@@ -1,3 +1,4 @@
+import csv
 import time
 import requests
 import json
@@ -184,6 +185,49 @@ class PersonService:
         response['Content-Disposition'] = f'attachment; filename="{filename}"'
         df.drop(columns=['id'], inplace=True)
         df.to_excel(response, index=False)
+        return response
+
+    @staticmethod
+    def export_to_csv(queryset, selected_columns, merge_fio=False):
+        """ Экспортирует объекты Person в файл CSV """
+
+        if merge_fio:
+            selected_columns.remove('last_name')
+            selected_columns.remove('first_name')
+            selected_columns.remove('middle_name')
+            selected_columns.append('fio')
+
+        column_list = ['id'] + selected_columns
+
+        if merge_fio:
+            queryset = queryset.annotate(fio=Concat('last_name', Value(' '), 'first_name', Value(' '), 'middle_name'))
+
+        df = pd.DataFrame(queryset.values(*column_list))
+
+        fio_mapping = ('fio', 'ФИО')
+        columns = ['id'] + [ColumnConfig.get_header_name(column) if column != 'fio' else fio_mapping[1] for column in
+                            selected_columns]
+        df.columns = columns
+
+        if merge_fio:
+            # Поместить колонку ФИО на первое место
+            fio_column = df.pop('ФИО')
+            df.insert(1, 'ФИО', fio_column)
+
+        for index, row in df.iterrows():
+            person_id = row['id']
+            person = Person.objects.get(pk=person_id)
+            PersonUsage.objects.create(person=person, date_of_use=now())
+
+        response = HttpResponse(content_type='text/csv')
+        row_count = len(df)
+        current_date = now().strftime('%Y-%m-%d_%H-%M')
+        filename = f"person_list_{row_count}_rows_{current_date}.csv"
+
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        df.drop(columns=['id'], inplace=True)
+        df.to_csv(response, index=False, sep=',', encoding='utf-8')
+
         return response
 
     @staticmethod

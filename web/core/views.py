@@ -1,3 +1,5 @@
+import csv
+
 from django.shortcuts import get_object_or_404
 from django.views.generic import View, ListView, FormView, UpdateView, TemplateView
 from django.contrib import messages
@@ -9,7 +11,7 @@ from core.forms import PersonTableForm, PersonFilterForm
 from core.constants import PREVIEW_ROWS_LIMIT, PersonTableStatus
 from core.tasks import save_table_task, update_person_status_and_usage_by_phone_number
 from mycelery import app
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib.auth.views import LoginView
@@ -50,6 +52,7 @@ class StartTaskView(LoginRequiredMixin, TemplateView):
 
         return HttpResponseRedirect(reverse('start_task'))
 
+
 class PersonListView(LoginRequiredMixin, ListView):
     model = Person
     paginate_by = 50
@@ -73,11 +76,17 @@ class PersonListView(LoginRequiredMixin, ListView):
             merge_fio = self.request.GET.get('merge_fio', '') == '1'
             response = PersonService.export_to_excel(qs, selected_columns, merge_fio)
             return response
+        elif request.GET.get('export') == 'csv':
+            selected_columns = request.GET.getlist('columns')
+            merge_fio = self.request.GET.get('merge_fio', '') == '1'
+            response = PersonService.export_to_csv(qs, selected_columns, merge_fio)
+            return response
 
         return super().get(request, *args, **kwargs)
     @timing_decorator
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
+
 
 class TableUploadView(LoginRequiredMixin, FormView):
     template_name = 'table_upload.html'

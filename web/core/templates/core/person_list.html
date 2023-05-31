@@ -3,6 +3,7 @@
 {% load static %}
 
 
+
 {% block title %}
     Список абонентов
 {% endblock %}
@@ -129,9 +130,17 @@ $(document).ready(function() {
                         <td>{{ form.status }}</td>
                         <td>
                             <button type="submit" class="btn btn-primary">Фильтровать</button>
-                            <a href="{% export_excel_url %}"
-                               class="btn btn-success btn-export-excel {% if total_count > 100000 %}no-export{% endif %}">Экспорт
-                                в Excel</a>
+                            <button class="btn btn-export-excel">
+                                <a href="{% export_excel_url %}"
+                                   class="btn btn-success btn-export-excel {% if total_count > 100000 %}no-export{% endif %}">Экспорт
+                                    в Excel</a>
+                            </button>
+                            <button class="btn btn-export-excel">
+                                <a href="{% export_csv_url %}"
+                                   class="btn btn-success btn-export-excel {% if total_count > 100000 %}no-export{% endif %}">Экспорт
+                                    в CSV</a>
+                            </button>
+
                         </td>
                         <td>
                             <div class="form-check" data-bs-toggle="tooltip" data-bs-placement="top"

@@ -1,5 +1,6 @@
 from django import template
 
+
 register = template.Library()
 
 @register.simple_tag(takes_context=True)
@@ -41,4 +42,32 @@ def export_excel_url(context):
         params.append(f'columns={column}')
 
     params.append('export=excel')
+    return f"{request.path}?{'&'.join(params)}"
+
+
+@register.simple_tag(takes_context=True)
+def export_csv_url(context):
+    request = context['request']
+    params = []
+
+    if request.GET.getlist('region'):
+        for region in request.GET.getlist('region'):
+            params.append(f'region={region}')
+    if request.GET.getlist('utc'):
+        for utc in request.GET.getlist('utc'):
+            params.append(f'utc={utc}')
+    if request.GET.get('max_rows'):
+        params.append(f'max_rows={request.GET.get("max_rows")}')
+    if request.GET.get('gender'):
+        params.append(f'gender={request.GET.get("gender")}')
+    if request.GET.get('tag'):
+        params.append(f'tag={request.GET.get("tag")}')
+    if request.GET.get('status'):
+        params.append(f'status={request.GET.get("status")}')
+    if request.GET.get('merge_fio'):
+        params.append(f'merge_fio={request.GET.get("merge_fio")}')
+    for column in request.GET.getlist('columns'):
+        params.append(f'columns={column}')
+
+    params.append('export=csv')
     return f"{request.path}?{'&'.join(params)}"

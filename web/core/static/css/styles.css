@@ -42,3 +42,8 @@ table.main {
     font-size: 0.9rem;
 }
 
+.export{
+    padding: 0;
+    border: none;
+    background: none;
+}
