@@ -3,20 +3,14 @@
 {% load static %}
 
 
-
 {% block title %}
     Список абонентов
 {% endblock %}
 
 {% block content %}
-    <script>$(document).ready(function () {
-// Раскрытие/скрытие блоков с датами использования данных
-    $('.usage-wrapper').click(function () {
-        $(this).find('.more').toggle();
-    });
-// Обновление ссылки на экспорт при изменении флажков выбора колонок
-    $('.column-checkbox').change(function () {
-        let queryParams = new URLSearchParams(window.location.search);
+    <script>
+        function startPage() {
+            let queryParams = new URLSearchParams(window.location.search);
         queryParams.delete('columns');
 
         $('.column-checkbox:checked').each(function () {
@@ -25,6 +19,20 @@
 
         const newUrl = window.location.pathname + '?' + queryParams.toString() + '&export=excel';
         $('.btn-export-excel').attr('href', newUrl);
+        const newUrlcsv = window.location.pathname + '?' + queryParams.toString() + '&export=csv';
+        $('.btn-export-excel-csv').attr('href', newUrlcsv );
+
+        console.log($('.btn-export-excel').attr("href"));
+        }
+        window.onload = startPage;
+        $(document).ready(function () {
+// Раскрытие/скрытие блоков с датами использования данных
+    $('.usage-wrapper').click(function () {
+        $(this).find('.more').toggle();
+    });
+// Обновление ссылки на экспорт при изменении флажков выбора колонок
+    $('.column-checkbox').change(function () {
+         startPage();
     });
 
 // Инициализация выпадающих списков с помощью плагина Select2
@@ -92,26 +100,38 @@ $(document).ready(function() {
 });
 
 $(document).ready(function() {
-  $("#merge_fio").on("click", function() {
-    const isChecked = $(this).prop("checked");
-    const link = $(".btn-export-excel");
-    const url = new URL(link.attr("href"), window.location.href);
+    $('#merge_fio').on("click", function() {
+        let queryParams = new URLSearchParams(window.location.search);
+        queryParams.delete('columns');
 
-    if (isChecked) {
-      url.searchParams.set("merge_fio", "1");
-    } else {
-      url.searchParams.delete("merge_fio");
-    }
+        $('.column-checkbox:checked').each(function () {
+            queryParams.append('columns', $(this).val());
+        });
 
-    link.attr("href", url.toString());
-  });
+        let newUrl =  window.location.pathname + '?' +queryParams.toString();
+        if ($(this).prop("checked")) {
+            newUrl = newUrl + "&merge_fio=1";
+        }
+        else {
+            newUrl = window.location.pathname + '?' + queryParams.toString();
+      }
+      $('.btn-export-excel').attr('href', newUrl.toString()+ '&export=excel');
+      $('.btn-export-excel-csv').attr('href', newUrl.toString()+ '&export=csv');
+    });
 });
 
 $(document).ready(function() {
   $(".btn-export-excel").one("click", function() {
     const link = $(this);
     const url = new URL(link.attr("href"), window.location.href);
+    link.prop("disabled", true).addClass("disabled").attr("href", url.toString());
+  });
+});
 
+$(document).ready(function() {
+  $(".btn-export-excel-csv").one("click", function() {
+    const link = $(this);
+    const url = new URL(link.attr("href"), window.location.href);
     link.prop("disabled", true).addClass("disabled").attr("href", url.toString());
   });
 });
@@ -137,7 +157,7 @@ $(document).ready(function() {
                             </button>
                             <button class="btn btn-export-excel">
                                 <a href="{% export_csv_url %}"
-                                   class="btn btn-success btn-export-excel {% if total_count > 100000 %}no-export{% endif %}">Экспорт
+                                   class="btn btn-success btn-export-excel-csv {% if total_count > 100000 %}no-export{% endif %}">Экспорт
                                     в CSV</a>
                             </button>
 
@@ -145,8 +165,8 @@ $(document).ready(function() {
                         <td>
                             <div class="form-check" data-bs-toggle="tooltip" data-bs-placement="top"
                                  title="Объединить ФИО">
-                                <input class="form-check-input" type="checkbox" name="merge_fio" id="merge_fio" checked
-                                       value="1">
+                                <input class="form-check-input" type="checkbox" name="merge_fio"
+                                       id="merge_fio" value="1">
                             </div>
                         </td>
                     </tr>
