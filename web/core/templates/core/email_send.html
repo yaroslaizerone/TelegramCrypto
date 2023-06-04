@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Рассылка email{% endblock %}
+
+{% block content %}
+    <style>
+    .title {
+        width: 100%;
+        padding: 5px 5px 5px 5px;
+    }
+    .text{
+        width: 100%;
+        padding: 5px 5px 5px 5px;
+        margin-top: 10px;
+    }
+    .btn-primary{
+        margin-top: 8px;
+        width: 200px;
+    }
+    .submitdiv{
+        display: flex;
+        justify-content: center;
+    }
+
+
+    #TODO добавить messages.success для оповещения отправки письм
+
+
+
+    </style>
+    <div class="container">
+        <h1 class="my-4">Рассылка писем</h1>
+        <p>Созданное письмо будет отправленно для каждого пользователя из базы даннных.</p>
+        <form method="post">
+            {% csrf_token %}
+            <input class = "title" type="text" name="title" placeholder="Заголовок письма" required>
+            <textarea class = "text" type="text" name="message" placeholder="Текст письма" required style="width: 100%" cols="40" rows="20"></textarea>
+            <div class="submitdiv">
+                <button type="submit" class="btn btn-primary">Отправить</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

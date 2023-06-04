@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Добавить тег{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1 class="my-4">Добавить отслеживание</h1>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-primary">Добавить</button>
+            <a href="{% url 'crypto' %}" class="btn btn-secondary">Отмена</a>
+        </form>
+    </div>
+{% endblock %}

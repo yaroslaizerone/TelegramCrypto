@@ -1,6 +1,7 @@
 from django import forms
 from core.models import PersonTable, Region, PersonTag, PersonStatusLV
 from core.constants import GENDER_CHOICES
+from core.models import CryptoObject
 
 
 class PersonTagForm(forms.ModelForm):
@@ -9,6 +10,16 @@ class PersonTagForm(forms.ModelForm):
         fields = ['name']
         labels = {
             'name': 'Название тега',
+        }
+
+
+class CryptoForm(forms.ModelForm):
+    class Meta:
+        model = CryptoObject
+        fields = ["name", "price_to_alert"]
+        labels = {
+            'name': 'Название криптовалюты',
+            'price_to_alert': 'Ожидаемая стоимость $',
         }
 
 

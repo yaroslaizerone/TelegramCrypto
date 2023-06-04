@@ -4,7 +4,7 @@ Description=celeryserver
 [Service]
 Type=exec
 WorkingDirectory=/home/vagrant/calldb/web
-ExecStart=/home/vagrant/.venv/bin/celery -A web worker -l info
+ExecStart=/home/vagrant/.venv/bin/celery -A mycelery worker -l info -S web.config.settings
 Restart=always
 
 [Install]

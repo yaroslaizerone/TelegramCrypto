@@ -115,3 +115,23 @@ class Person(models.Model):
 class TaskStatus(models.Model):
     task_id = models.CharField(max_length=255, unique=True)
     is_active = models.BooleanField(default=True)
+
+
+class CryptoObject(models.Model):
+    CRYPTO_LIST =(
+        ('Bitcoin', 'BTC'),
+        ('Ethereum', 'ETH'),
+        ('Tether', 'USDT'),
+        ('Bnb', 'BNB'),
+        ('uUsd-coin', 'USDC'),
+        ('Xrp', 'XRP'),
+        ('Cardano', 'ADA'),
+        ('Dogecoin', 'DOGE'),
+        ('Solana', 'SOL'),
+        ('Polygon', 'MATIC')
+    )
+    name = models.CharField(verbose_name='Название', max_length=100, choices=CRYPTO_LIST)
+    price_to_alert = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return self.name

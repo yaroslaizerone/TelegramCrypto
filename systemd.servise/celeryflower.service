@@ -4,7 +4,7 @@ Description=celeryflowerserver
 [Service]
 Type=exec
 WorkingDirectory=/home/vagrant/calldb/web
-ExecStart=/home/vagrant/.venv/bin/celery -A web flower
+ExecStart=/home/vagrant/.venv/bin/celery -A mycelery flower
 Restart=always
 
 [Install]

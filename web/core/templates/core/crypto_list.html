@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}Список отслеживаемых криптовалют{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1 class="my-4">Список отслеживаемых криптовалют</h1>
+        <p>Когда цена монеты будет ниже указанной, вам прийдёт уведомление в Telegram.<p>
+        <a href="{% url 'crypto_add' %}" class="btn btn-primary mb-3">Добавить отслеживание криптовалюты</a>
+        <ul class="list-group">
+            {% for tag in object_list %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <tb>{{ tag.name }}</tb><tb>$ {{ tag.price_to_alert }}</tb>
+                    <a href="{% url 'crypto_delete' tag.pk %}" class="btn btn-danger">Удалить</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

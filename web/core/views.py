@@ -1,5 +1,6 @@
 import csv
 
+from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from django.views.generic import View, ListView, FormView, UpdateView, TemplateView
 from django.contrib import messages
@@ -9,7 +10,7 @@ from core.models import Person, PersonTable, TaskStatus, PersonTag
 from core.services import TableService, PersonService
 from core.forms import PersonTableForm, PersonFilterForm
 from core.constants import PREVIEW_ROWS_LIMIT, PersonTableStatus
-from core.tasks import save_table_task, update_person_status_and_usage_by_phone_number
+from core.tasks import save_table_task, update_person_status_and_usage_by_phone_number, send_email_task
 from mycelery import app
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect
@@ -129,7 +130,7 @@ class TableUpdateView(LoginRequiredMixin, UpdateView):
             tags = PersonTag.objects.filter(id__in=selected_tags)
             self.object.tags.set(tags)
         else:
-            messages.error(self.request, 'Уже апдейтнуто.')
+            messages.error(self.request, 'Загруженная таблица не корректна.')
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -162,3 +163,17 @@ class TableListView(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['total_count'] = self.get_queryset().count()
         return context
+
+
+class EmailSend(TemplateView):
+    template_name = 'email_send.html'
+
+    def post(self, request):
+        title = self.request.POST['title']
+        message_send = self.request.POST['message']
+        send_email_task.delay(title, message_send)
+        messages.success(self.request, 'Рассылка прошла успешно.')
+        return HttpResponseRedirect(reverse('email_send'))
+
+
+

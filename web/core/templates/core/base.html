@@ -79,7 +79,13 @@ table.main {
                     <a class="nav-link" href="{% url 'person_tags' %}">Теги</a>
                 </li>
                 <li class="nav-item {% url_active 'start_task' %}">
-                    <a class="nav-link" href="{% url 'start_task' %}">Таски</a>
+                    <a class="nav-link" href="{% url 'start_task' %}">Задачи</a>
+                </li>
+                <li class="nav-item {% url_active 'crypto' %}">
+                    <a class="nav-link" href="{% url 'crypto' %}">Отслеживание криптовалюты</a>
+                </li>
+                <li class="nav-item {% url_active 'email_send' %}">
+                    <a class="nav-link" href="{% url 'email_send' %}">Рассылка email</a>
                 </li>
             </ul>
             {% if user.is_authenticated %}
