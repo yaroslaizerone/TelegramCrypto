@@ -119,19 +119,19 @@ class TaskStatus(models.Model):
 
 class CryptoObject(models.Model):
     CRYPTO_LIST =(
-        ('Bitcoin', 'BTC'),
-        ('Ethereum', 'ETH'),
-        ('Tether', 'USDT'),
-        ('Bnb', 'BNB'),
-        ('uUsd-coin', 'USDC'),
-        ('Xrp', 'XRP'),
-        ('Cardano', 'ADA'),
-        ('Dogecoin', 'DOGE'),
-        ('Solana', 'SOL'),
-        ('Polygon', 'MATIC')
+        ('BTC', 'BTC'),
+        ('ETH', 'ETH'),
+        ('USDT', 'USDT'),
+        ('BNB', 'BNB'),
+        ('USDC', 'USDC'),
+        ('XRP', 'XRP'),
+        ('ADA', 'ADA'),
+        ('DOGE', 'DOGE'),
+        ('SOL', 'SOL'),
+        ('MATIC', 'MATIC')
     )
     name = models.CharField(verbose_name='Название', max_length=100, choices=CRYPTO_LIST)
-    price_to_alert = models.DecimalField(max_digits=10, decimal_places=2)
+    price_to_alert = models.FloatField(verbose_name='Стоимость')
 
     def __str__(self):
         return self.name

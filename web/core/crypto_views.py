@@ -25,7 +25,7 @@ class AddCrypto(LoginRequiredMixin, CreateView):
         self.model.save()
         return redirect('/crypto')
 
-#TODO
+# TODO
 # сделать асинхронный мотод для проверки падения стоимости монеты
 # Делать проверку по БД
 class DeleteCrypto(LoginRequiredMixin, DeleteView):

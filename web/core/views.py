@@ -17,6 +17,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from core.tasks import check_price_crypto
 
 
 class CustomLoginView(LoginView):
@@ -68,6 +69,7 @@ class PersonListView(LoginRequiredMixin, ListView):
         context['total_count'] = filtered_qs.count()
         context['form'] = self.form_class(self.request.GET)
         context['has_data'] = PersonService.has_data_for_columns(filtered_qs)
+        check_price_crypto.delay()
         return context
 
     def get(self, request, *args, **kwargs):
