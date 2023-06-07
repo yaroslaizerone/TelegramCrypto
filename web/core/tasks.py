@@ -58,7 +58,8 @@ def check_price_crypto():
                     messege_telegram = messege_telegram + f"\nНазвание монеты -- {CryptoObject.objects.get(name=сrypto_name[element]).name}\nЦена упала до {crypto_price[element]}\n"
                     CryptoObject.objects.get(name=сrypto_name[element]).delete()
             except:pass
-        send_notify(messege_telegram)
+        if messege_telegram != "_______Оповещение_______\n":
+            send_notify(messege_telegram)
         time.sleep(30)
 
 
